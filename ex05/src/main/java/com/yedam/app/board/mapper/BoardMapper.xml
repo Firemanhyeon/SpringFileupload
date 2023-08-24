@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.yedam.app.board.mapper.BoardMapper">
+  	<!-- 전체조회 -->
+  	<select id="selectBoardAll" resultType="BoardVO">
+  		SELECT bno
+  				, title
+  				, content
+  				, writer
+  				, regdate
+  				, updatedate
+  				, replycnt
+  		  FROM tbl_board
+  		  ORDER BY bno
+  	</select>
+  	<!-- 단건조회 -->
+  	<select id="selectBoardInfo" resultType="BoardVO">
+  		SELECT bno
+  				, title
+  				, content
+  				, writer
+  				, regdate
+  				, updatedate
+  				, replycnt
+  		  FROM tbl_board
+  		 WHERE bno=#{bno}
+  		 <!-- ${} 데이터 타입에 따른 대응 불가해서 # 쓴다 -->
+  	</select>
+  	<!-- 등록 -->
+  	<insert id="insertBoardInfo" parameterType="BoardVO">
+  		<selectKey keyProperty="bno"
+  					resultType="Integer"
+  					order="BEFORE">
+  			SELECT NVL(MAX(bno),0) +1 
+  			  FROM tbl_board
+  		</selectKey>
+  		INSERT INTO tbl_board
+  					(
+  						bno
+  						, title
+  						, content
+  						, writer
+  						<if test = "regdate != null">
+  						, regdate
+  						</if>
+  					)
+  			VALUES	(
+  						#{bno}
+  						, #{title}
+  						, #{content}
+  						, #{writer}
+  						<if test = "regdate != null">
+  						, #{regdate}
+  						</if>
+  			)
+  				
+  	</insert>
+  	
+  	<!-- 수정 -->
+  	<update id="updateBoardInfo" parameterType="BoardVO">
+  		UPDATE tbl_board
+  		
+  		<set>
+  			<if test="title != null and !title.equals('')">
+  				title = #{title},
+  			</if>
+  			<if test="writer != null and !writer.equals('')">
+  				writer = #{writer},
+  			</if>
+  			
+  			<choose>	
+  				<when test="content !=null and !content.equals('')">
+  					content = #{content},
+  				</when>	
+  				<otherwise>
+  					content='No Content'
+  				</otherwise>
+  			</choose>
+  			
+  			updatedate = sysdate
+  			
+  		</set>
+  		
+  		WHERE bno = #{bno}
+  		
+  	</update>
+  	
+  	<!-- 삭제 -->
+  	<delete id="deleteBoardInfo" parameterType="int">
+  		DELETE FROM tbl_board
+  			  WHERE bno = #{no}
+  	</delete>
+  </mapper>
